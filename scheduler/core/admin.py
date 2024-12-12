@@ -6,7 +6,7 @@ class TaskResultInline(admin.TabularInline):
     extra = 1
 
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('name', 'resource', 'task_type', 'repeat_interval', 'is_active', 'next_run', 'is_task_created')
+    list_display = ('name', 'resource', 'task_type', 'schedule_time' ,'repeat_interval', 'next_run','is_active')
     list_filter = ('task_type', 'repeat_interval', 'is_active')
     search_fields = ('name', 'resource')
     inlines = [TaskResultInline]
