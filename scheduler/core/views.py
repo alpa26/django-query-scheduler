@@ -24,8 +24,10 @@ def start_task(request, task_id):
 
     if task.task_type == 'api':
         run_api_task.send(task.id,-1)
+        print("api one time")
     elif task.task_type == 'db':
         run_db_task.send(task.id,-1)
+        print("api one time")
     else:
         return Response({"error": "Invalid task type"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -43,8 +45,10 @@ def handle_task_creation(task):
         delay = (task.schedule_time - timezone.now()).total_seconds() * 1000
         if task.task_type == 'api':
             run_api_task.send_with_options(args=(task.id,), delay=int(delay))
+            print("api delay")
         elif task.task_type == 'db':
             run_db_task.send_with_options(args=(task.id,), delay=int(delay))
+            print("db delay")
 
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()

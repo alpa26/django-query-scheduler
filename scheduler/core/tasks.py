@@ -9,7 +9,7 @@ from .models import Task, TaskResult
 import sqlite3
 
 
-def enter_data_in_table(task, response):
+def enter_data_in_table(task, response,status):
     print(f"table method")
     directory = 'excel_tables'
     file_path = os.path.join(os.path.dirname(__file__), '..', directory, task.table_name)
@@ -23,7 +23,7 @@ def enter_data_in_table(task, response):
         print(f"not found table {file_path}")
         workbook = Workbook()
         sheet = workbook.active
-        headers = ["Name", "Type", "Resource", "Request", "Responce", "ScheduleTime"]
+        headers = ["Name", "Type", "Resource", "Request","Status", "Responce", "ScheduleTime"]
         sheet.append(headers)
 
 
@@ -32,6 +32,7 @@ def enter_data_in_table(task, response):
         task.task_type,
         task.resource,
         task.request,
+        status,
         response,
         task.schedule_time.strftime('%Y-%m-%d %H:%M:%S')
     ]
@@ -57,7 +58,7 @@ def run_api_task(task_id, attempt=1):
         task.last_run = timezone.now()
         task.save()
         if(task.table_name):
-            enter_data_in_table(task, result)
+            enter_data_in_table(task, result,status)
         TaskResult.objects.create(task=task, result=result, status=status)
         # Если задача вызывается с параметром attempt == -1 то задача выполняется 1 раз
         if attempt != -1:
@@ -65,14 +66,17 @@ def run_api_task(task_id, attempt=1):
                 task.next_run = task.last_run + timezone.timedelta(days=1)
                 delay = (task.next_run - timezone.now()).total_seconds() * 1000
                 run_api_task.send_with_options(args=(task_id,), delay=int(delay))
+                task.save()
             if task.repeat_interval == 'daily':
                 task.next_run = task.last_run + timezone.timedelta(days=1)
                 delay = (task.next_run - timezone.now()).total_seconds() * 1000
                 run_api_task.send_with_options(args=(task_id,), delay=int(delay))
+                task.save()
             if task.repeat_interval == 'weekly':
                 task.next_run = task.last_run + timezone.timedelta(days=7)
                 delay = (task.next_run - timezone.now()).total_seconds() * 1000
                 run_api_task.send_with_options(args=(task_id,), delay=int(delay))
+                task.save()
 
     except requests.exceptions.RequestException as e:
         if (attempt == -1):
@@ -110,7 +114,7 @@ def run_db_task(task_id, attempt=1):
         else:
             result_str = result
         if(task.table_name):
-            enter_data_in_table(task, result_str)
+            enter_data_in_table(task, result_str,status)
         TaskResult.objects.create(task=task, result=result, status=status)
         # Если задача вызывается с параметром attempt == -1 то задача выполняется 1 раз
         if attempt != -1:
@@ -118,14 +122,17 @@ def run_db_task(task_id, attempt=1):
                 task.next_run = task.last_run + timezone.timedelta(hours=1)
                 delay = (task.next_run - timezone.now()).total_seconds() * 1000
                 run_db_task.send_with_options(args=(task_id,), delay=int(delay))
+                task.save()
             if task.repeat_interval == 'daily':
                 task.next_run = task.last_run + timezone.timedelta(days=1)
                 delay = (task.next_run - timezone.now()).total_seconds() * 1000
                 run_db_task.send_with_options(args=(task_id,), delay=int(delay))
+                task.save()
             if task.repeat_interval == 'weekly':
                 task.next_run = task.last_run + timezone.timedelta(days=1)
                 delay = (task.next_run - timezone.now()).total_seconds() * 1000
                 run_db_task.send_with_options(args=(task_id,), delay=int(delay))
+                task.save()
     except Exception as e:
         if (attempt == -1):
             attempt = 1
