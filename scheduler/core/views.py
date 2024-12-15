@@ -73,9 +73,5 @@ class TaskResultViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         task_id = self.kwargs['task_id']
         return TaskResult.objects.filter(task_id=task_id)
 
-def task_list(request):
-    tasks = Task.objects.all()
-    return render(request, 'core/task_list.html', {'tasks': tasks})
-
 def hello_world(request):
     return render(request, 'core/hello_world.html')

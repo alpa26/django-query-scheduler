@@ -32,6 +32,5 @@ urlpatterns = [
         'redoc/',
         schema_view.with_ui('redoc', cache_timeout=0),
         name='schema-redoc'
-    ),
-    path('tasks/list/', views.task_list, name='task-list-view'),
+    )
 ]
