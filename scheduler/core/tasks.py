@@ -36,11 +36,9 @@ def enter_data_in_table(task, response,status):
         response,
         task.schedule_time.strftime('%Y-%m-%d %H:%M:%S')
     ]
+
     print(f"{task.name},{task.task_type},{task.resource},{task.request},{response}, {task.schedule_time.strftime('%Y-%m-%d %H:%M:%S')}")
-
-
     sheet.append(row)
-
     workbook.save(file_path)
 
 
@@ -85,7 +83,7 @@ def run_api_task(task_id, attempt=1):
         status = 'error'
         if (attempt < 4):
             TaskResult.objects.create(task=task, result=result, status=status)
-            run_api_task.send_with_options(args=(task_id, attempt + 1,), delay=90000)
+            run_api_task.send_with_options(args=(task_id, attempt + 1,), delay=60000)
 
 
 @dramatiq.actor
@@ -140,4 +138,4 @@ def run_db_task(task_id, attempt=1):
         status = 'error'
         if (attempt < 4):
             TaskResult.objects.create(task=task, result=result, status=status)
-            run_db_task.send_with_options(args=(task_id, attempt + 1,), delay=10000)
+            run_db_task.send_with_options(args=(task_id, attempt + 1,), delay=60000)
