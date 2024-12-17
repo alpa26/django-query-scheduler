@@ -1,9 +1,8 @@
 from django.contrib import admin
 from rest_framework import permissions
-from django.urls import path, include, re_path
+from django.urls import path, include
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-
 from core import views
 
 schema_view = get_schema_view(

@@ -11,7 +11,6 @@ django.setup()
 broker = RedisBroker(url=settings.DRAMATIQ_BROKER["OPTIONS"]["url"])
 dramatiq.set_broker(broker)
 
-import core.tasks
 
 if __name__ == "__main__":
     from dramatiq.cli import main
