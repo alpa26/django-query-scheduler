@@ -4,6 +4,7 @@ from django.dispatch import receiver
 
 
 class Task(models.Model):
+    """"Класс задач"""
     TASK_TYPE_CHOICES = [
         ('api', 'API'),
         ('db', 'Database'),
@@ -38,6 +39,10 @@ class Task(models.Model):
 
 @receiver(post_save, sender=Task)
 def task_post_save(sender, instance, created, **kwargs):
+    """Метод, выполняющийся после сохранения задачи
+
+    Проверяет, если задача создалась, вызывает handle_task_creation
+     для планирования задачи и корректирует св-ва table_name и is_task_created"""
     from .views import handle_task_creation
     if created and not instance.is_task_created:
         handle_task_creation(instance)
@@ -47,6 +52,7 @@ def task_post_save(sender, instance, created, **kwargs):
 
 
 class TaskResult(models.Model):
+    """Класс результата задач"""
     task = models.ForeignKey(Task, related_name='results',
                              on_delete=models.CASCADE)
     result = models.TextField()
